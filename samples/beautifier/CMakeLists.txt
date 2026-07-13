@@ -9,17 +9,17 @@ add_executable(json-beautifier
     main.cpp
 )
 
-# Add JSONC Dependency
+# Add JSONCPP Dependency
 
 include(FetchContent)
 
 FetchContent_Declare(
-  JSONC
-  GIT_REPOSITORY git@github.com:st235/JSONC.git
+  JSONCPP
+  GIT_REPOSITORY git@github.com:st235/JSONCPP.git
   GIT_TAG "main"
   GIT_SHALLOW TRUE
   GIT_PROGRESS ON
 )
-FetchContent_MakeAvailable(JSONC)
+FetchContent_MakeAvailable(JSONCPP)
 
-target_link_libraries(json-beautifier jsonc)
+target_link_libraries(json-beautifier jsoncpp)

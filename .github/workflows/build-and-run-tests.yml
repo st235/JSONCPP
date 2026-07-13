@@ -21,7 +21,7 @@ jobs:
           build-dir: ${{github.workspace}}/build/
           options: |
             COMPILE_TESTS=ON
-            ASSERT=ON
+            ENABLE_ASSERT=ON
 
       - name: Run tests
         working-directory: ${{github.workspace}}/build/
