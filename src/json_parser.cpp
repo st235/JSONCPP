@@ -1,5 +1,6 @@
 #include "json_parser.h"
 
+#include <cctype>
 #include <iostream>
 #include <optional>
 #include <sstream>
@@ -14,20 +15,6 @@ bool IsEscapeCharacter(char c) {
     return (c == '\"') || (c == '\\') || (c == '/') ||
         (c == 'b') || (c == 'f') || (c == 'n') ||
         (c == 'r') || (c == 't');
-}
-
-bool IsDecimal(char c) {
-    return c >= '0' && c <= '9';
-}
-
-bool IsHexaDecimal(char c) {
-    return (c == 'A') || (c == 'a') ||
-        (c == 'B') || (c == 'b') ||
-        (c == 'C') || (c == 'c') ||
-        (c == 'D') || (c == 'd') ||
-        (c == 'E') || (c == 'e') ||
-        (c == 'F') || (c == 'f') ||
-        IsDecimal(c);
 }
 
 } // namespace
@@ -224,13 +211,13 @@ std::optional<Json> JsonParser::number(JsonTokenReader& reader) {
         sstream << reader.next();
     }
 
-    if (IsDecimal(reader.peek())) {
+    if (std::isdigit(reader.peek())) {
         bool isZero = (reader.peek() == '0');
         sstream << reader.next();
 
         if (!isZero) {
             // Digit 1-9 (as number should not have leading zeros)
-            while (IsDecimal(reader.peek())) {
+            while (std::isdigit(reader.peek())) {
                 sstream << reader.next();
             }
         }
@@ -244,13 +231,13 @@ std::optional<Json> JsonParser::number(JsonTokenReader& reader) {
         // Fraction part.
         sstream << reader.next();
 
-        if (!IsDecimal(reader.peek())) {
+        if (!std::isdigit(reader.peek())) {
             // Not a decimal after fraction.
             reader.restore(token);
             return std::nullopt;
         }
 
-        while (IsDecimal(reader.peek())) {
+        while (std::isdigit(reader.peek())) {
             sstream << reader.next();
         }
     }
@@ -263,13 +250,13 @@ std::optional<Json> JsonParser::number(JsonTokenReader& reader) {
             sstream << reader.next();
         }
 
-        if (!IsDecimal(reader.peek())) {
+        if (!std::isdigit(reader.peek())) {
             // Not a decimal after exponent.
             reader.restore(token);
             return std::nullopt;
         }
 
-        while (IsDecimal(reader.peek())) {
+        while (std::isdigit(reader.peek())) {
             sstream << reader.next();
         }
     }
@@ -316,7 +303,7 @@ std::optional<std::string> JsonParser::raw_string(JsonTokenReader& reader) {
                 // 4 hex digits should follow
 
                 for (size_t i = 0; i < 4; i++) {
-                    if (!reader.hasNext() || !IsHexaDecimal(reader.peek())) {
+                    if (!reader.hasNext() || !std::isxdigit(reader.peek())) {
                         reader.restore(token);
                         return std::nullopt;
                     }
