@@ -82,9 +82,18 @@ if (COMPILE_TESTS)
   # This check only affects tests builds, as if applied to
   # an INTERFACE library, will affect clients of the library.
   if(MSVC)
-    target_compile_options(jsoncpp_tests PRIVATE /W4 /WX)
+    message(STATUS "Detected MSVC compiler.")
+    target_compile_options(jsoncpp_tests PRIVATE /W4 /WX /permissive-)
   else()
     target_compile_options(jsoncpp_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES ".*[Cc]lang")
+      message(STATUS "Detected Clang compiler.")
+      target_compile_options(jsoncpp_tests PRIVATE -Wconversion -Wno-unused-function -Wconditional-uninitialized)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message(STATUS "Detected GCC compiler.")
+        target_compile_options(jsoncpp_tests PRIVATE -Wno-uninitialized)
+    endif()
   endif()
 
   include(GoogleTest)
