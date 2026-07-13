@@ -1,7 +1,8 @@
 #include "json_parser.h"
 
-#include <sstream>
 #include <iostream>
+#include <optional>
+#include <sstream>
 
 #include "json_token_reader.h"
 
@@ -43,7 +44,7 @@ std::optional<Json> JsonParser::parse(const std::string& raw_json) {
         return std::nullopt;
     }
 
-    return std::move(value);
+    return value;
 }
 
 // objects

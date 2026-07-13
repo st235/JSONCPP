@@ -39,7 +39,7 @@ std::vector<Character> ParseCharacters(const json::Json& response) {
         }
     }
 
-    return std::move(result);
+    return result;
 }
 
 std::string ReadFile(const std::string& filename) {

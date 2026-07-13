@@ -8,7 +8,7 @@ std::string JsonBeautifier::beautify(const Json& json) {
     json.accept(*this);
     const auto& beautified_json = beautifiedJson();
     reset();
-    return std::move(beautified_json);
+    return beautified_json;
 }
 
 void JsonBeautifier::visitNull() {

@@ -8,7 +8,7 @@ std::string JsonMinifier::minify(const Json& json) {
     json.accept(*this);
     const auto& minified_json = minifiedJson();
     reset();
-    return std::move(minified_json);
+    return minified_json;
 }
 
 void JsonMinifier::visitNull() {
