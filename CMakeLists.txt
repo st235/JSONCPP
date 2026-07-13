@@ -10,11 +10,11 @@ project(JSONCPP VERSION 0.9.4 DESCRIPTION "JSONCPP is a lightweight implementati
 add_library(jsoncpp INTERFACE)
 
 target_sources(jsoncpp INTERFACE
-  src/json_parser.h
-  src/json_parser.cpp
-  src/json_token_reader.h
-  src/json_minifier.cpp
   src/json_beautifier.cpp
+  src/json_minifier.cpp
+  src/json_parser.cpp
+  src/json_parser.h
+  src/json_tokeniser.h
   src/json.cpp
 )
 target_include_directories(jsoncpp INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -61,7 +61,7 @@ if (COMPILE_TESTS)
     tests/unit/json_array_tests.cpp
     tests/unit/json_object_tests.cpp
     #  Internal types tests.
-    tests/unit/json_token_reader_tests.cpp
+    tests/unit/json_tokeniser_tests.cpp
 
     # Integration tests.
     tests/integration/json_dump_tests.cpp

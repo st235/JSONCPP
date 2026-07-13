@@ -5,7 +5,7 @@
 #include <optional>
 #include <sstream>
 
-#include "json_token_reader.h"
+#include "json_tokeniser.h"
 
 #include "json.h"
 
@@ -24,7 +24,7 @@ namespace json {
 namespace __internal {
 
 std::optional<Json> JsonParser::parse(const std::string& raw_json) {
-    JsonTokenReader reader(raw_json);
+    JsonTokeniser reader(raw_json);
     const auto& value = this->value(reader);
 
     if (reader.hasNext()) {
@@ -35,7 +35,7 @@ std::optional<Json> JsonParser::parse(const std::string& raw_json) {
 }
 
 // objects
-std::optional<Json> JsonParser::object(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::object(JsonTokeniser& reader) {
     auto token = reader.save();
 
     if (!reader.consume('{')) {
@@ -97,7 +97,7 @@ std::optional<Json> JsonParser::object(JsonTokenReader& reader) {
     return std::optional<Json>(object);
 }
 
-std::optional<Json> JsonParser::array(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::array(JsonTokeniser& reader) {
     auto token = reader.save();
 
     if (!reader.consume('[')) {
@@ -134,7 +134,7 @@ std::optional<Json> JsonParser::array(JsonTokenReader& reader) {
 }
 
 // base
-std::optional<Json> JsonParser::value(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::value(JsonTokeniser& reader) {
     auto token = reader.save();
 
     std::optional<Json> value = std::nullopt;
@@ -173,7 +173,7 @@ std::optional<Json> JsonParser::value(JsonTokenReader& reader) {
 }
 
 // primitives
-std::optional<Json> JsonParser::null(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::null(JsonTokeniser& reader) {
     auto token = reader.save();
 
     if (reader.consumeAll("null")) {
@@ -184,7 +184,7 @@ std::optional<Json> JsonParser::null(JsonTokenReader& reader) {
     }
 }
 
-std::optional<Json> JsonParser::boolean(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::boolean(JsonTokeniser& reader) {
     auto token = reader.save();
 
     if (reader.consumeAll("true")) {
@@ -202,7 +202,7 @@ std::optional<Json> JsonParser::boolean(JsonTokenReader& reader) {
     return std::nullopt;
 }
 
-std::optional<Json> JsonParser::number(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::number(JsonTokeniser& reader) {
     auto token = reader.save();
 
     std::stringstream sstream;
@@ -264,7 +264,7 @@ std::optional<Json> JsonParser::number(JsonTokenReader& reader) {
     return std::optional<Json>(Json(std::stod(sstream.str())));
 }
 
-std::optional<Json> JsonParser::string(JsonTokenReader& reader) {
+std::optional<Json> JsonParser::string(JsonTokeniser& reader) {
     const auto& opt_string = this->raw_string(reader);
     if (!opt_string) {
         return std::nullopt;
@@ -275,7 +275,7 @@ std::optional<Json> JsonParser::string(JsonTokenReader& reader) {
 }
 
 // misc
-std::optional<std::string> JsonParser::raw_string(JsonTokenReader& reader) {
+std::optional<std::string> JsonParser::raw_string(JsonTokeniser& reader) {
     auto token = reader.save();
 
     if (!reader.consume('\"')) {
@@ -326,7 +326,7 @@ std::optional<std::string> JsonParser::raw_string(JsonTokenReader& reader) {
     return std::nullopt;
 }
 
-void JsonParser::whitespace(JsonTokenReader& reader) {
+void JsonParser::whitespace(JsonTokeniser& reader) {
     // In terms of JSON specification
     // spaces are: space, linefeed (aka new line),
     // carriage return, and horizontal tab.

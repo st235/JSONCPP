@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_TOKEN_READER_H__
-#define __JSONC_JSON_TOKEN_READER_H__
+#ifndef JSONC_JSON_TOKENISER_H_
+#define JSONC_JSON_TOKENISER_H_
 
 #include <cstdint>
 #include <string>
@@ -8,22 +8,22 @@ namespace json {
 
 namespace __internal {
 
-class JsonTokenReader {
+class JsonTokeniser {
   public:
     static inline constexpr char TOKEN_EOF = 0;
 
-    explicit JsonTokenReader(const std::string& raw_json):
+    explicit JsonTokeniser(const std::string& raw_json):
         _index(0),
         _raw_json(raw_json) {
         // Empty on purpose.
     }
 
-    JsonTokenReader(const JsonTokenReader& that) {
+    JsonTokeniser(const JsonTokeniser& that) {
         this->_index = that._index;
         this->_raw_json = that._raw_json;
     }
 
-    JsonTokenReader& operator=(const JsonTokenReader& that) {
+    JsonTokeniser& operator=(const JsonTokeniser& that) {
         if (this != &that) {
             this->_index = that._index;
             this->_raw_json = that._raw_json;
@@ -32,12 +32,12 @@ class JsonTokenReader {
         return *this;
     }
 
-    JsonTokenReader(JsonTokenReader&& that) noexcept {
+    JsonTokeniser(JsonTokeniser&& that) noexcept {
         this->_index = that._index;
         this->_raw_json = std::move(that._raw_json);
     }
 
-    JsonTokenReader& operator=(JsonTokenReader&& that) noexcept {
+    JsonTokeniser& operator=(JsonTokeniser&& that) noexcept {
         if (this != &that) {
             this->_index = that._index;
             this->_raw_json = std::move(that._raw_json);
@@ -95,7 +95,7 @@ class JsonTokenReader {
         return _raw_json[_index];
     }
 
-    ~JsonTokenReader() = default;
+    ~JsonTokeniser() = default;
   private:
     size_t _index;
     std::string _raw_json;
@@ -105,4 +105,4 @@ class JsonTokenReader {
 
 } // namespace json
 
-#endif // __JSONC_JSON_TOKEN_READER_H__
+#endif // JSONC_JSON_TOKENISER_H_

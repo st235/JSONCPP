@@ -12,7 +12,7 @@ class Json;
 namespace __internal {
 
 // Forward declaration of the reader.
-class JsonTokenReader;
+class JsonTokeniser;
 
 class JsonParser {
   public:
@@ -25,21 +25,21 @@ class JsonParser {
      **/
 
     // Base.
-    std::optional<Json> value(JsonTokenReader& reader);
+    std::optional<Json> value(JsonTokeniser& reader);
     
     // Objects.
-    std::optional<Json> object(JsonTokenReader& reader);
-    std::optional<Json> array(JsonTokenReader& reader);
+    std::optional<Json> object(JsonTokeniser& reader);
+    std::optional<Json> array(JsonTokeniser& reader);
 
     // Primitives.
-    std::optional<Json> null(JsonTokenReader& reader);
-    std::optional<Json> boolean(JsonTokenReader& reader);
-    std::optional<Json> number(JsonTokenReader& reader);
-    std::optional<Json> string(JsonTokenReader& reader);
+    std::optional<Json> null(JsonTokeniser& reader);
+    std::optional<Json> boolean(JsonTokeniser& reader);
+    std::optional<Json> number(JsonTokeniser& reader);
+    std::optional<Json> string(JsonTokeniser& reader);
 
     // Misc.
-    std::optional<std::string> raw_string(JsonTokenReader& reader);
-    void whitespace(JsonTokenReader& reader);
+    std::optional<std::string> raw_string(JsonTokeniser& reader);
+    void whitespace(JsonTokeniser& reader);
 };
 
 } // namespace internal
