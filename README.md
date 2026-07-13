@@ -1,6 +1,6 @@
-# JSONC
+# JSONCPP
 
-`JSONC` is a lightweight implementation of `JSON` Data Interchange Standard for `C++` programming language.
+`JSONCPP` is a lightweight implementation of `JSON` Data Interchange Standard for `C++` programming language.
 
 It is an ideal candidate to use with microcontrollers. The library was tested with [`Raspberry Pi Pico and Pico W`](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html).
 
@@ -16,15 +16,15 @@ It is an ideal candidate to use with microcontrollers. The library was tested wi
 include(FetchContent)
 
 FetchContent_Declare(
-  JSONC
-  GIT_REPOSITORY git@github.com:st235/JSONC.git
+  JSONCPP
+  GIT_REPOSITORY git@github.com:st235/JSONCPP.git
   GIT_TAG "main"
   GIT_SHALLOW TRUE
   GIT_PROGRESS ON
 )
-FetchContent_MakeAvailable(JSONC)
+FetchContent_MakeAvailable(JSONCPP)
 
-target_link_libraries(your-project-target jsonc)
+target_link_libraries(your-project-target jsoncpp)
 ```
 
 Check out [`samples`](./samples/) for more.
@@ -135,11 +135,12 @@ Use these commands to build the project:
 
 ```bash
 mkdir build
-cmake .. -DCOMPILE_TESTS=ON -DASSERT=ON
+cmake .. -DCOMPILE_TESTS=ON -DENABLE_ASSERT=ON
 make
 ```
-
-`ASSERT=ON` is used to enabled assertions in the codebase. If you're building a release flavour then you may consider to do not specify this setting.
+>[!TIP]
+> When `ENABLE_ASSERT=ON` is provided, the assertion mechanism is turned on.
+> While this can be useful during debugging, usually, you don't want them enabled in the production flavour.
 
 ### Running test
 

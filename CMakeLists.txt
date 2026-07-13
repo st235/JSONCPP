@@ -9,13 +9,6 @@ project(JSONCPP VERSION 0.9.4 DESCRIPTION "JSONCPP is a lightweight implementati
 
 add_library(jsoncpp INTERFACE)
 
-#  Enable assertions statements in the codebase.
-option(ASSERT "Asserts are enabled when turned on." OFF)
-if (ASSERT)
-  message("Enabling assertions in the code.")
-  add_compile_definitions(ASSERT=${ASSERT})
-endif()
-
 target_sources(jsoncpp INTERFACE
   src/json_parser.h
   src/json_parser.cpp
@@ -26,11 +19,20 @@ target_sources(jsoncpp INTERFACE
 )
 target_include_directories(jsoncpp INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+#  Enable assertions statements in the codebase.
+option(ENABLE_ASSERT "Enables assertion mechanism, useful for debugging." OFF)
+if (ENABLE_ASSERT)
+  message(STATUS "Enabling assertion mechanism.")
+  target_compile_definitions(jsoncpp INTERFACE
+    ASSERT=${ENABLE_ASSERT}
+  )
+endif()
+
 # Compile test targets, disabled by default.
 option(COMPILE_TESTS "Compiled with tests when turned on." OFF)
 
 if (COMPILE_TESTS)
-  message("Compiling tests.")
+  message(STATUS "Compiling tests.")
 
   # Test targets.
   include(FetchContent)
