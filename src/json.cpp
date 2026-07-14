@@ -20,8 +20,8 @@ Json Json::object() {
 }
 
 std::optional<Json> Json::fromJson(const std::string& json) {
-    __internal::JsonParser parser;
-    return parser.parse(json);
+    __internal::JsonParser parser(json);
+    return parser.Parse();
 }
 
 std::string Json::toJson(const Json& json) {

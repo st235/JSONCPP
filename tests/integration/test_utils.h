@@ -1,5 +1,5 @@
-#ifndef __JSONC_TEST_UTILS_H__
-#define __JSONC_TEST_UTILS_H__
+#ifndef JSONCPP_TEST_UTILS_H_
+#define JSONCPP_TEST_UTILS_H_
 
 #include <memory>
 #include <string>
@@ -23,4 +23,4 @@ inline TestData<T> PrepareTestData(const T& actual,
 
 } // namespace test_utils
 
-#endif // __JSONC_TEST_UTILS_H__
+#endif // JSONCPP_TEST_UTILS_H_

@@ -3,85 +3,69 @@
 #include <cctype>
 #include <iostream>
 #include <optional>
-#include <sstream>
 
 #include "json_tokeniser.h"
-
 #include "json.h"
-
-namespace {
-
-bool IsEscapeCharacter(char c) {
-    return (c == '\"') || (c == '\\') || (c == '/') ||
-        (c == 'b') || (c == 'f') || (c == 'n') ||
-        (c == 'r') || (c == 't');
-}
-
-} // namespace
 
 namespace json {
 
 namespace __internal {
 
-std::optional<Json> JsonParser::parse(const std::string& raw_json) {
-    JsonTokeniser reader(raw_json);
-    const auto& value = this->value(reader);
+std::optional<Json> JsonParser::Parse() {
+    const auto& value = this->value();
 
-    if (reader.hasNext()) {
+    if (!Consume(JsonTokeniser::TokenType::kEOF)) {
         return std::nullopt;
     }
 
     return value;
 }
 
-// objects
-std::optional<Json> JsonParser::object(JsonTokeniser& reader) {
-    auto token = reader.save();
+bool JsonParser::Match(const JsonTokeniser::TokenType& type) const {
+    return current_token_.type == type;
+}
 
-    if (!reader.consume('{')) {
-        reader.restore(token);
+bool JsonParser::Consume(const JsonTokeniser::TokenType& type) {
+    if (current_token_.type == type) {
+        current_token_ = tokeniser_.ReadNextToken();
+        return true;
+    }
+    return false;
+}
+
+// objects
+std::optional<Json> JsonParser::object() {
+    if (!Consume(JsonTokeniser::TokenType::kLeftCurlyBracket)) {
         return std::nullopt;
     }
 
     auto&& object = Json::object();
 
-    whitespace(reader);
-
-    const auto& opt_key = raw_string(reader);
+    const auto& opt_key = raw_string();
     if (opt_key) {
-        whitespace(reader);
-
-        if (!reader.consume(':')) {
-            reader.restore(token);
+        if (!Consume(JsonTokeniser::TokenType::kColon)) {
             return std::nullopt;
         }
 
-        auto&& opt_value = this->value(reader);
+        auto&& opt_value = this->value();
         if (!opt_value) {
-            reader.restore(token);
             return std::nullopt;
         }
 
         object.put(opt_key.value(), std::move(*opt_value));
 
-        while (reader.consume(',')) {
-            whitespace(reader);
-            const auto& opt_key = raw_string(reader);
+        while (Consume(JsonTokeniser::TokenType::kComma)) {
+            const auto& opt_key = raw_string();
             if (!opt_key) {
-                reader.restore(token);
                 return std::nullopt;
             }
 
-            whitespace(reader);
-
-            if (!reader.consume(':')) {
-                reader.restore(token);
+            if (!Consume(JsonTokeniser::TokenType::kColon)) {
                 return std::nullopt;
             }
 
-            auto&& opt_value = this->value(reader);
+            auto&& opt_value = this->value();
             if (!opt_value) {
-                reader.restore(token);
                 return std::nullopt;
             }
 
@@ -89,33 +73,28 @@ std::optional<Json> JsonParser::object(JsonTokeniser& reader) {
         }
     }
 
-    if (!reader.consume('}')) {
-        reader.restore(token);
+    if (!Consume(JsonTokeniser::TokenType::kRightCurlyBracket)) {
         return std::nullopt;
     }
 
     return std::optional<Json>(object);
 }
 
-std::optional<Json> JsonParser::array(JsonTokeniser& reader) {
-    auto token = reader.save();
-
-    if (!reader.consume('[')) {
-        reader.restore(token);
+std::optional<Json> JsonParser::array() {
+    if (!Consume(JsonTokeniser::TokenType::kLeftSquareBracket)) {
         return std::nullopt;
     }
 
     auto&& array = Json::array();
-    std::optional<Json> opt_value = this->value(reader);
+    std::optional<Json> opt_value = this->value();
     if (opt_value) {
         array.add(std::move(*opt_value));
 
-        while (reader.consume(',')) {
-            opt_value = this->value(reader);
+        while (Consume(JsonTokeniser::TokenType::kComma)) {
+            opt_value = this->value();
 
             if (!opt_value) {
                 // No opt_value after coma.
-                reader.restore(token);
                 return std::nullopt;
             }
 
@@ -123,10 +102,7 @@ std::optional<Json> JsonParser::array(JsonTokeniser& reader) {
         }
     }
 
-    whitespace(reader);
-
-    if (!reader.consume(']')) {
-        reader.restore(token);
+    if (!Consume(JsonTokeniser::TokenType::kRightSquareBracket)) {
         return std::nullopt;
     }
 
@@ -134,138 +110,57 @@ std::optional<Json> JsonParser::array(JsonTokeniser& reader) {
 }
 
 // base
-std::optional<Json> JsonParser::value(JsonTokeniser& reader) {
-    auto token = reader.save();
-
-    std::optional<Json> value = std::nullopt;
-    whitespace(reader);
-
-    value = string(reader);
-
-    if (!value) {
-        value = number(reader);
-    }
-
-    if (!value) {
-        value = object(reader);
-    }
-
-    if (!value) {
-        value = array(reader);
-    }
-
-    if (!value) {
-        value = boolean(reader);
-    }
-
-    if (!value) {
-        value = null(reader);
-    }
-
-    if (!value) {
-        reader.restore(token);
-        return std::nullopt;
-    }
-
-    whitespace(reader);
-
-    return value;
-}
-
-// primitives
-std::optional<Json> JsonParser::null(JsonTokeniser& reader) {
-    auto token = reader.save();
-
-    if (reader.consumeAll("null")) {
-        return std::optional<Json>(Json::null());
-    } else {
-        reader.restore(token);
-        return std::nullopt;
-    }
-}
-
-std::optional<Json> JsonParser::boolean(JsonTokeniser& reader) {
-    auto token = reader.save();
-
-    if (reader.consumeAll("true")) {
-        return std::optional<Json>(Json(true));
-    } else {
-        reader.restore(token);
-    }
-
-    if (reader.consumeAll("false")) {
-        return std::optional<Json>(Json(false));
-    } else {
-        reader.restore(token);
+std::optional<Json> JsonParser::value() {
+    if (Match(JsonTokeniser::TokenType::kString)) {
+        return string();
+    } else if (Match(JsonTokeniser::TokenType::kNumber)) {
+        return number();
+    } else if (Match(JsonTokeniser::TokenType::kLeftCurlyBracket)) {
+        return object();
+    } else if (Match(JsonTokeniser::TokenType::kLeftSquareBracket)) {
+        return array();
+    } else if (Match(JsonTokeniser::TokenType::kTrue) || Match(JsonTokeniser::TokenType::kFalse)) {
+        return boolean();
+    } else if (Match(JsonTokeniser::TokenType::kNull)) {
+        return null();
     }
 
     return std::nullopt;
 }
 
-std::optional<Json> JsonParser::number(JsonTokeniser& reader) {
-    auto token = reader.save();
+// primitives
+std::optional<Json> JsonParser::null() {
+    if (Consume(JsonTokeniser::TokenType::kNull)) {
+        return std::optional<Json>(Json::null());
+    } else {
+        return std::nullopt;
+    }
+}
 
-    std::stringstream sstream;
-
-    if (reader.peek() == '-') {
-        sstream << reader.next();
+std::optional<Json> JsonParser::boolean() {
+    if (Consume(JsonTokeniser::TokenType::kTrue)) {
+        return std::optional<Json>(Json(true));
+    } else if (Consume(JsonTokeniser::TokenType::kFalse)) {
+        return std::optional<Json>(Json(false));
     }
 
-    if (std::isdigit(reader.peek())) {
-        bool isZero = (reader.peek() == '0');
-        sstream << reader.next();
+    return std::nullopt;
+}
 
-        if (!isZero) {
-            // Digit 1-9 (as number should not have leading zeros)
-            while (std::isdigit(reader.peek())) {
-                sstream << reader.next();
-            }
-        }
-    } else {
-        // Not a decimal.
-        reader.restore(token);
+std::optional<Json> JsonParser::number() {
+    const auto token = current_token_;
+
+    if (!Consume(JsonTokeniser::TokenType::kNumber)) {
         return std::nullopt;
     }
 
-    if (reader.peek() == '.') {
-        // Fraction part.
-        sstream << reader.next();
-
-        if (!std::isdigit(reader.peek())) {
-            // Not a decimal after fraction.
-            reader.restore(token);
-            return std::nullopt;
-        }
-
-        while (std::isdigit(reader.peek())) {
-            sstream << reader.next();
-        }
-    }
-
-    if (reader.peek() == 'e' || reader.peek() == 'E') {
-        // Exponent part.
-        sstream << reader.next();
-
-        if (reader.peek() == '-' || reader.peek() == '+') {
-            sstream << reader.next();
-        }
-
-        if (!std::isdigit(reader.peek())) {
-            // Not a decimal after exponent.
-            reader.restore(token);
-            return std::nullopt;
-        }
-
-        while (std::isdigit(reader.peek())) {
-            sstream << reader.next();
-        }
-    }
-
-    return std::optional<Json>(Json(std::stod(sstream.str())));
+    const auto value = tokeniser_.Extract(token);
+    return std::optional<Json>(Json(std::stod(value)));
 }
 
-std::optional<Json> JsonParser::string(JsonTokeniser& reader) {
-    const auto& opt_string = this->raw_string(reader);
+std::optional<Json> JsonParser::string() {
+    const auto opt_string = raw_string();
+
     if (!opt_string) {
         return std::nullopt;
     }
@@ -274,64 +169,15 @@ std::optional<Json> JsonParser::string(JsonTokeniser& reader) {
     return std::optional<Json>(json);
 }
 
-// misc
-std::optional<std::string> JsonParser::raw_string(JsonTokeniser& reader) {
-    auto token = reader.save();
+std::optional<std::string> JsonParser::raw_string() {
+    const auto token = current_token_;
 
-    if (!reader.consume('\"')) {
+    if (!Consume(JsonTokeniser::TokenType::kString)) {
         return std::nullopt;
     }
 
-    std::stringstream sstream;
-
-    while (reader.hasNext() && reader.peek() != '\"') {
-        char c = reader.next();
-        sstream << c;
-
-        if (c == '\\') {
-            // Control character flow.
-
-            if (!reader.hasNext()) {
-                reader.restore(token);
-                return std::nullopt;
-            }
-
-            char control_character = reader.next();
-            sstream << control_character;
-
-            if (control_character == 'u') {
-                // 4 hex digits should follow
-
-                for (size_t i = 0; i < 4; i++) {
-                    if (!reader.hasNext() || !std::isxdigit(reader.peek())) {
-                        reader.restore(token);
-                        return std::nullopt;
-                    }
-
-                    sstream << reader.next();
-                }
-            } else if (!IsEscapeCharacter(control_character)) {
-                // Neither a control character nor hexadecimal number.
-                reader.restore(token);
-                return std::nullopt;
-            }
-        }
-    }
-
-    if (reader.consume('\"')) {
-        return std::optional<std::string>(sstream.str());
-    }
-
-    reader.restore(token);
-    return std::nullopt;
-}
-
-void JsonParser::whitespace(JsonTokeniser& reader) {
-    // In terms of JSON specification
-    // spaces are: space, linefeed (aka new line),
-    // carriage return, and horizontal tab.
-    while (reader.consume(' ') || reader.consume('\n') || reader.consume('\t') || reader.consume('\r')) {
-    }
+    const auto value = tokeniser_.Extract(token);
+    return std::optional<std::string>(value.substr(1, value.length() - 2));
 }
 
 } // namespace internal

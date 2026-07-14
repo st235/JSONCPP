@@ -1,9 +1,10 @@
-#ifndef __JSONC_JSON_PARSER_H__
-#define __JSONC_JSON_PARSER_H__
+#ifndef JSONCPP_JSON_PARSER_H_
+#define JSONCPP_JSON_PARSER_H_
 
-#include <cstdint>
 #include <optional>
 #include <string>
+
+#include "json_tokeniser.h"
 
 namespace json {
 
@@ -11,39 +12,52 @@ class Json;
 
 namespace __internal {
 
-// Forward declaration of the reader.
-class JsonTokeniser;
-
 class JsonParser {
   public:
-    std::optional<Json> parse(const std::string& raw_json);
+    explicit JsonParser(const std::string& raw_json) noexcept:
+        tokeniser_(raw_json),
+        current_token_() {
+        current_token_ = tokeniser_.ReadNextToken();
+    }
+
+    JsonParser(const JsonParser& that) noexcept = default;
+    JsonParser& operator=(const JsonParser& that) noexcept = default;
+    JsonParser(JsonParser&& that) noexcept = default;
+    JsonParser& operator=(JsonParser&& that) noexcept = default;
+
+    std::optional<Json> Parse();
+
+    ~JsonParser() = default;
 
   private:
+    JsonTokeniser tokeniser_;
+    JsonTokeniser::Token current_token_;
+
+    bool Match(const JsonTokeniser::TokenType& type) const;
+    bool Consume(const JsonTokeniser::TokenType& type);
+
     /**
      * Implemented with accordance
      * to https://www.json.org/json-en.html
      **/
 
     // Base.
-    std::optional<Json> value(JsonTokeniser& reader);
+    std::optional<Json> value();
     
     // Objects.
-    std::optional<Json> object(JsonTokeniser& reader);
-    std::optional<Json> array(JsonTokeniser& reader);
+    std::optional<Json> object();
+    std::optional<Json> array();
 
     // Primitives.
-    std::optional<Json> null(JsonTokeniser& reader);
-    std::optional<Json> boolean(JsonTokeniser& reader);
-    std::optional<Json> number(JsonTokeniser& reader);
-    std::optional<Json> string(JsonTokeniser& reader);
-
-    // Misc.
-    std::optional<std::string> raw_string(JsonTokeniser& reader);
-    void whitespace(JsonTokeniser& reader);
+    std::optional<Json> null();
+    std::optional<Json> boolean();
+    std::optional<Json> number();
+    std::optional<Json> string();
+    std::optional<std::string> raw_string();
 };
 
 } // namespace internal
 
 } // namespace json
 
-#endif // __JSONC_JSON_PARSER_H__
+#endif // JSONCPP_JSON_PARSER_H_
