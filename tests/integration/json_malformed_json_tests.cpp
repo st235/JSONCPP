@@ -40,6 +40,19 @@ INSTANTIATE_TEST_SUITE_P(
             "4E+",
             "1.23E",
             "-8.11e-",
+            // Plus sign.
+            "+3",
+            "+3.11",
+            "+2e3",
+            // Multiple decimal dot separation.
+            "-1.1.2",
+            "1.23.11",
+            // Mixed numbers and strings.
+            "1.2a",
+            "1.a",
+            "22a",
+            "1a2",
+            "33ea",
 
             // Strings with issues:
             // No brackets.
