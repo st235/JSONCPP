@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_BEAUTIFIER_H__
-#define __JSONC_JSON_BEAUTIFIER_H__
+#ifndef JSONCPP_JSON_BEAUTIFIER_H_
+#define JSONCPP_JSON_BEAUTIFIER_H_
 
 #include <cstdint>
 #include <sstream>
@@ -56,4 +56,4 @@ class JsonBeautifier: public JsonVisitor {
 
 } // namespace json
 
-#endif // __JSONC_JSON_BEAUTIFIER_H__
+#endif // JSONCPP_JSON_BEAUTIFIER_H_

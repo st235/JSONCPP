@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_VISITOR_H__
-#define __JSONC_JSON_VISITOR_H__
+#ifndef JSONCPP_JSON_VISITOR_H_
+#define JSONCPP_JSON_VISITOR_H_
 
 #include "json_definitions.h"
 
@@ -18,4 +18,4 @@ class JsonVisitor {
 
 } // namespace json
 
-#endif // __JSONC_JSON_VISITOR_H__
+#endif // JSONCPP_JSON_VISITOR_H_

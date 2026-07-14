@@ -1,5 +1,5 @@
-#ifndef JSONC_JSON_TOKENISER_H_
-#define JSONC_JSON_TOKENISER_H_
+#ifndef JSONCPP_JSON_TOKENISER_H_
+#define JSONCPP_JSON_TOKENISER_H_
 
 #include <cctype>
 #include <cstdint>
@@ -267,4 +267,4 @@ class JsonTokeniser {
 
 } // namespace json
 
-#endif // JSONC_JSON_TOKENISER_H_
+#endif // JSONCPP_JSON_TOKENISER_H_

@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_ASSERT_H__
-#define __JSONC_JSON_ASSERT_H__
+#ifndef JSONCPP_JSON_ASSERT_H_
+#define JSONCPP_JSON_ASSERT_H_
 
 #ifdef ASSERT
 
@@ -22,4 +22,4 @@
 
 #endif // ASSERT
 
-#endif // __JSONC_JSON_ASSERT_H__
+#endif // JSONCPP_JSON_ASSERT_H_

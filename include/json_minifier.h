@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_MINIFIER_H__
-#define __JSONC_JSON_MINIFIER_H__
+#ifndef JSONCPP_JSON_MINIFIER_H_
+#define JSONCPP_JSON_MINIFIER_H_
 
 #include <sstream>
 
@@ -41,4 +41,4 @@ class JsonMinifier: public JsonVisitor {
 
 } // namespace json
 
-#endif // __JSONC_JSON_MINIFIER_H__
+#endif // JSONCPP_JSON_MINIFIER_H_

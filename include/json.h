@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_H__
-#define __JSONC_JSON_H__
+#ifndef JSONCPP_JSON_H_
+#define JSONCPP_JSON_H_
 
 #include <initializer_list>
 #include <optional>
@@ -472,4 +472,4 @@ class Json {
 
 } // namespace json
 
-#endif // __JSONC_JSON_H__
+#endif // JSONCPP_JSON_H_

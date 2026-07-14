@@ -1,5 +1,5 @@
-#ifndef __JSONC_JSON_DEFINITIONS_H__
-#define __JSONC_JSON_DEFINITIONS_H__
+#ifndef JSONCPP_JSON_DEFINITIONS_H_
+#define JSONCPP_JSON_DEFINITIONS_H_
 
 #include <string>
 #include <vector>
@@ -17,4 +17,4 @@ using object_t = std::unordered_map<std::string, Json>;
 
 } // namespace json
 
-#endif // __JSONC_JSON_DEFINITIONS_H__
+#endif // JSONCPP_JSON_DEFINITIONS_H_
